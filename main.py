@@ -1,9 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import matplotlib.pyplot as plt
-import numpy as np
 import re
-from colorama import init, Fore
 
 
 URL = 'http://books.toscrape.com/'
@@ -13,28 +11,42 @@ y = []
 
 soup = BeautifulSoup(answer.text, 'html.parser')
 books = soup.find_all("article", class_="product_pod")
-id_book = 0
 
-for book in books:
-    title = book.h3.a["title"]
-    price = re.sub(
-        r'Â£',
-        "",
-        book.find("p", class_="price_color").get_text(
-            strip=True
+
+def print_data():
+    try:
+        id_book = 1
+        for book in books:
+            title = book.h3.a["title"]
+            price = re.sub(
+                    r'Â£',
+                    "",
+                    book.find("p", class_="price_color").get_text(
+                        strip=True
+                    )
             )
-        )
-    
-    x.append(title)
-    y.append(float(price))
-    id_book += 1
-    print('Libro: {:03d}\n Titulo: {} \n Precio:{}\n'.format(id_book, title, price))
 
-plt.bar(x, y, color="skyblue")
-plt.title('Gráfico de Barras Simple')
-plt.xlabel('Libros')
-plt.ylabel('Precios')
+            x.append("ID:{:03d}".format(id_book))
+            y.append(float(price))
+            print('Libro: {:03d}\n Titulo: {} \n Precio:{}\n'.format(
+                id_book,
+                title,
+                price
+                ))
+            id_book += 1
 
-# Mostrar el gráfico
-plt.show()
+        plt.barh(x, y, color="skyblue")
+        plt.title("Precios de libros")
+        plt.xlabel("Precio (£)")
+        plt.ylabel("ID del libro")
+        plt.tight_layout()
 
+        # Mostrar el gráfico
+        plt.savefig("output_data/grafico.png", dpi=200, bbox_inches="tight")
+
+    except Exception as e:
+        print("Hubo un error en la ejecurcion de la funcion: ", e)
+
+
+if __name__ == '__main__':
+    print_data()
